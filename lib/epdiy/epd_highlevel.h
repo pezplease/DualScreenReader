@@ -112,7 +112,7 @@ uint8_t* epd_hl_get_framebuffer(EpdiyHighlevelState* state);
  * @param temperature: Environmental temperature of the display in °C.
  * @returns `EPD_DRAW_SUCCESS` on sucess, a combination of error flags otherwise.
  */
-enum EpdDrawError epd_hl_update_screen(EpdiyHighlevelState* state, enum EpdDrawMode mode, int temperature);
+//enum EpdDrawError epd_hl_update_screen(EpdiyHighlevelState* state, enum EpdDrawMode mode, int temperature);
 
 /**
  * Update an area of the screen to match the content of the front framebuffer.
@@ -126,7 +126,7 @@ enum EpdDrawError epd_hl_update_screen(EpdiyHighlevelState* state, enum EpdDrawM
  * @param area: Area of the screen to update.
  * @returns `EPD_DRAW_SUCCESS` on sucess, a combination of error flags otherwise.
  */
-enum EpdDrawError epd_hl_update_area(EpdiyHighlevelState* state, enum EpdDrawMode mode, int temperature, EpdRect area);
+//enum EpdDrawError epd_hl_update_area(EpdiyHighlevelState* state, enum EpdDrawMode mode, int temperature, EpdRect area);
 
 /**
  * Reset the front framebuffer to a white state.

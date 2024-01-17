@@ -11,8 +11,12 @@
 //#include "esp_log.h"
 
 // epd
-//#include "epd_highlevel.h"
+#include "epd_highlevel.h"
 #include "epdiy.h"
+
+//lilygo epd drivers
+#include "epd_driver.h"
+
 
 // battery
 //#include <driver/adc.h>
@@ -39,8 +43,17 @@ Button2 btn3(BUTTON_3);
 //uint8_t *rotatedFramebuffer;
 
 
-int EPD_HEIGHT = 540;
-int EPD_WIDTH = 960;
+int Display_HEIGHT = 540;
+int Display_WIDTH = 960;
+
+uint8_t* fb;
+
+Rect_t fullscreen = {
+    .x = 0,
+    .y = 0,
+    .width = Display_WIDTH ,
+    .height =  Display_HEIGHT,
+};
 
 EpdRotation orientation = EPD_ROT_PORTRAIT;
 
@@ -48,10 +61,26 @@ const char *testsentence = "This is a test";
 
 void displayInfo(void)
 {
+epd_poweron();
+epd_clear();
 
-    
+    int cursor_x = Display_HEIGHT / 2;
+    int cursor_y = Display_WIDTH / 2;
+    if (orientation == EPD_ROT_PORTRAIT) {
+        // height and width switched here because portrait mode
+        cursor_x = Display_WIDTH / 2;
+        cursor_y = Display_HEIGHT / 2;
+    }
+    EpdFontProperties font_props = epd_font_properties_default();
+    font_props.flags = EPD_DRAW_ALIGN_CENTER;
+    epd_write_string(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb, &font_props);
+
+epd_draw_grayscale_image(fullscreen, fb);
+epd_poweroff();
+delay(3000);
+
 }
-
+/*
 void display_center_message(const char* text) {
     // first set full screen to white
     epd_hl_set_all_white(&hl);
@@ -73,34 +102,32 @@ void display_center_message(const char* text) {
     epd_poweroff();
     delay(1000);
 }
-
+*/
 
 void buttonPressed(Button2 &b)
 {
-displayInfo();
+//displayInfo();
 }
-
-
 
 
 void setup()
 {
+    Serial.begin(115200);
 
-/*
-    framebuffer = (uint8_t *)ps_calloc(sizeof(uint8_t), displayheight * displaywidth / 2);
-    rotatedFramebuffer = (uint8_t *)ps_calloc(sizeof(uint8_t), displayheight * displaywidth / 2);
-    if (!framebuffer) {
+    epd_init();
+
+    fb = (uint8_t *)ps_calloc(sizeof(uint8_t), Display_HEIGHT * Display_WIDTH / 2);
+    if (!fb) {
         Serial.println("alloc memory failed !!!");
         while (1);
     }
-    memset(framebuffer, 0xFF, displayheight * displaywidth / 2);
-*/
-    btn1.setPressedHandler(buttonPressed);
-#if defined(T5_47)
-    btn2.setPressedHandler(buttonPressed);
-    btn3.setPressedHandler(buttonPressed);
-#endif
+    memset(fb, 0xFF, Display_HEIGHT * Display_WIDTH / 2);
 
+    //epd_poweron();
+   
+
+
+    btn1.setPressedHandler(buttonPressed);
     displayInfo();
    
 }

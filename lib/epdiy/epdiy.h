@@ -199,12 +199,16 @@ typedef struct {
 //#include "epd_board_specific.h"
 
 /** Initialize the ePaper display */
-void epd_init(const EpdBoardDefinition* board, const EpdDisplay_t* display, enum EpdInitOptions options);
+//void epd_init(const EpdBoardDefinition* board, const EpdDisplay_t* display, enum EpdInitOptions options);
 
 /**
  * Get the configured display.
  */
-const EpdDisplay_t* epd_get_display();
+
+//removed this
+//const EpdDisplay_t* epd_get_display();
+
+
 
 /**
  * Get the EPD display's witdth.
@@ -252,14 +256,14 @@ void epd_poweron();
 void epd_poweroff();
 
 /** Clear the whole screen by flashing it. */
-void epd_clear();
+//void epd_clear();
 
 /**
  * Clear an area by flashing it.
  *
  * @param area: The area to clear.
  */
-void epd_clear_area(EpdRect area);
+//void epd_clear_area(EpdRect area);
 
 /**
  * Clear an area by flashing it.
@@ -268,12 +272,12 @@ void epd_clear_area(EpdRect area);
  * @param cycles: The number of black-to-white clear cycles.
  * @param cycle_time: Length of a cycle. Default: 50 (us).
  */
-void epd_clear_area_cycles(EpdRect area, int cycles, int cycle_time);
+//void epd_clear_area_cycles(EpdRect area, int cycles, int cycle_time);
 
 /**
  * @returns Rectancle representing the whole screen area.
  */
-EpdRect epd_full_screen();
+//EpdRect epd_full_screen();
 
 /**
  * Draw a picture to a given framebuffer.
@@ -286,8 +290,8 @@ EpdRect epd_full_screen();
  * @param framebuffer: The framebuffer object,
  *   which must be `epd_width() / 2 * epd_height()` large.
  */
-void epd_copy_to_framebuffer(EpdRect image_area, const uint8_t *image_data,
-                             uint8_t *framebuffer);
+//void epd_copy_to_framebuffer(EpdRect image_area, const uint8_t *image_data,
+//                             uint8_t *framebuffer);
 
 /**
  * Draw a pixel a given framebuffer.
@@ -357,7 +361,7 @@ void epd_fill_circle(int x, int y, int r, uint8_t color, uint8_t *framebuffer);
  * @param color: The gray value of the line (see [Colors](#Colors));
  * @param framebuffer: The framebuffer to draw to,
  */
-void epd_draw_rect(EpdRect rect, uint8_t color, uint8_t *framebuffer);
+//void epd_draw_rect(EpdRect rect, uint8_t color, uint8_t *framebuffer);
 
 /**
  * Draw a rectanle with fill color
@@ -366,7 +370,7 @@ void epd_draw_rect(EpdRect rect, uint8_t color, uint8_t *framebuffer);
  * @param color: The gray value of the line (see [Colors](#Colors));
  * @param framebuffer: The framebuffer to draw to,
  */
-void epd_fill_rect(EpdRect rect, uint8_t color, uint8_t *framebuffer);
+//void epd_fill_rect(EpdRect rect, uint8_t color, uint8_t *framebuffer);
 
 /**
  * Draw a line
@@ -468,7 +472,7 @@ const EpdGlyph* epd_get_glyph(const EpdFont *font, uint32_t code_point);
  * @param time: The time in us to apply voltage to each pixel.
  * @param color: 1: lighten, 0: darken.
  */
-void epd_push_pixels(EpdRect area, short time, int color);
+//void epd_push_pixels(EpdRect area, short time, int color);
 
 /**
  * Base function for drawing an image on the screen.

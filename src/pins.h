@@ -30,7 +30,7 @@
 #define GPIO_SCLK (14)
 #define GPIO_CS   (15)
 #elif defined(T5_47_PLUS)
-#define BUTTON_1   (10) // was 21
+#define BUTTON_1   (21) // 10
 
 #define BATT_PIN   (14)
 

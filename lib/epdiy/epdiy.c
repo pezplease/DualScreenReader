@@ -19,7 +19,7 @@ typedef struct {
 //static const EpdDisplay_t* display = NULL;
 
 // Display rotation. Can be updated using epd_set_rotation(enum EpdRotation)
-static enum EpdRotation display_rotation = EPD_ROT_LANDSCAPE;
+static enum EpdRotation display_rotation = EPD_ROT_PORTRAIT;
 
 #ifndef _swap_int
 #define _swap_int(a, b)                                                        \
@@ -529,13 +529,13 @@ const EpdDisplay_t* epd_get_display() {
 */
 int epd_width() {
     //return display->width;
-    return 960;
+    return 540;
     
 }
 
 int epd_height() {
     //return display->height;
-    return 540;
+    return 960;
 }
 
 void epd_set_lcd_pixel_clock_MHz(int frequency) {

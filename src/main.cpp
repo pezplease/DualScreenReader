@@ -42,11 +42,12 @@ Button2 btn3(BUTTON_3);
 //uint8_t *framebuffer;
 //uint8_t *rotatedFramebuffer;
 
-
+//actual dimensions of the screen (lilygo 4.7 is height 540 width 960)
 int Display_HEIGHT = 540;
 int Display_WIDTH = 960;
 
-uint8_t* fb;
+uint8_t *fb;
+uint8_t *rot_fb;
 
 Rect_t fullscreen = {
     .x = 0,
@@ -58,6 +59,29 @@ Rect_t fullscreen = {
 EpdRotation orientation = EPD_ROT_PORTRAIT;
 
 const char *testsentence = "This is a test";
+
+void rotateFramebuffer(uint8_t *normalbuffer, uint8_t *rotatedbuffer){
+for (int y = 0; y < Display_HEIGHT; y++) {
+    for (int x = 0; x < Display_WIDTH; x++){
+        int originalIndex = y * Display_WIDTH + x;
+
+        int rotatedIndex = x *Display_HEIGHT + y;
+
+        rotatedbuffer[rotatedIndex] = normalbuffer[originalIndex];
+    }
+}
+
+/*
+for (int x = 0; x < Display_HEIGHT; x++) {
+        for (int y = 0; y < Display_WIDTH; y++){
+            rotatedbuffer[y * Display_HEIGHT + x] = normalbuffer[(Display_HEIGHT - x - 1) * Display_WIDTH + y];
+        }
+    }
+*/
+}
+
+
+
 
 void displayInfo(void)
 {
@@ -73,7 +97,10 @@ epd_clear();
     }
     EpdFontProperties font_props = epd_font_properties_default();
     font_props.flags = EPD_DRAW_ALIGN_CENTER;
+
     epd_write_string(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb, &font_props);
+//rotateFramebuffer(fb, rot_fb);
+
 
 epd_draw_grayscale_image(fullscreen, fb);
 epd_poweroff();
@@ -106,19 +133,24 @@ void display_center_message(const char* text) {
 
 void buttonPressed(Button2 &b)
 {
-//displayInfo();
+displayInfo();
 }
 
 
 void setup()
 {
     Serial.begin(115200);
-
+    //epd_set_rotation(EPD_ROT_PORTRAIT);
     epd_init();
 
     fb = (uint8_t *)ps_calloc(sizeof(uint8_t), Display_HEIGHT * Display_WIDTH / 2);
     if (!fb) {
-        Serial.println("alloc memory failed !!!");
+        Serial.println("alloc memory failed");
+        while (1);
+    }
+    rot_fb = (uint8_t *)ps_calloc(sizeof(uint8_t), Display_HEIGHT * Display_WIDTH / 2);
+     if (!rot_fb) {
+        Serial.println("alloc rot memory failed");
         while (1);
     }
     memset(fb, 0xFF, Display_HEIGHT * Display_WIDTH / 2);
@@ -128,7 +160,7 @@ void setup()
 
 
     btn1.setPressedHandler(buttonPressed);
-    displayInfo();
+    //displayInfo();
    
 }
 

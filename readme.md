@@ -1,0 +1,3 @@
+This is a project to create a two screened e-reader using two esp32s3. Currently, the project is using Lilygo boards and screens with epdiy driving them, but future versions will be aimed at using an epdiy driver board with two generic screens. 
+
+The lilygo screen used is "t5-4-7-plus" which is the V2.3 version that uses an esp32-s3-wroom-1 chip, which the epdiy library does not have the proper waveforms to make it work. The lilygo driver libraries have been grafted on so that the epdiy libraries create the framebuffer while the lilygo drivers use them to update the display. Once the switch is done for epdiy drivers and generic screens the driver code will be pure epdiy.

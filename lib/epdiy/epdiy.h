@@ -568,7 +568,7 @@ void epd_draw_rotated_transparent_image(EpdRect image_area, const uint8_t *image
  * This method can be used to tune your application for maximum refresh speed,
  * if you can guarantee the driver can keep up.
  */
-void epd_set_lcd_pixel_clock_MHz(int frequency);
+//void epd_set_lcd_pixel_clock_MHz(int frequency);
 
 #ifdef __cplusplus
 }

@@ -35,6 +35,7 @@ EpdRect epd_full_screen() {
   return area;
 }
 
+
 //void epd_clear() { epd_clear_area(epd_full_screen()); }
 
 void epd_draw_hline(int x, int y, int length, uint8_t color,
@@ -537,7 +538,7 @@ int epd_height() {
     //return display->height;
     return 960;
 }
-
+/*
 void epd_set_lcd_pixel_clock_MHz(int frequency) {
 #ifdef RENDER_METHOD_LCD
     void epd_lcd_set_pixel_clock_MHz(int frequency);
@@ -546,3 +547,4 @@ void epd_set_lcd_pixel_clock_MHz(int frequency) {
     ESP_LOGW("epdiy", "called set_lcd_pixel_clock_MHz, but LCD driver is not used!");
 #endif
 }
+*/

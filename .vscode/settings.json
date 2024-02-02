@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "F:/Code/DualScreenReader/.pio/libdeps/t5-4-7-plus/LilyGoEPD47/src"
+    "cmake.sourceDirectory": "F:/Code/DualScreenReader/.pio/libdeps/t5-4-7-plus/LilyGoEPD47/src",
+    "files.associations": {
+        "esp_assert.h": "c"
+    }
 }

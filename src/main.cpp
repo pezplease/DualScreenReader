@@ -15,7 +15,8 @@
 #include "epdiy.h"
 
 //lilygo epd drivers
-#include "epd_driver.h"
+//#include "epd_driver.h"
+#include "lilyrender.h"
 
 
 // battery
@@ -50,13 +51,14 @@ int Buffer_HEIGHT = 960;
 int Buffer_WIDTH = 540;
 uint8_t *fb;
 uint8_t *rot_fb;
-
+/*
 Rect_t fullscreen = {
     .x = 0,
     .y = 0,
     .width = Display_WIDTH ,
     .height =  Display_HEIGHT,
 };
+*/
 //EpdRect allarea = {.x = 0, .y = 0, .width = epd_width(), .height = epd_height()};
 
 
@@ -137,7 +139,8 @@ epd_write_default(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb);
 
 //epdiy_draw_rotated_image(allarea, fb, fb);
 //epd_draw_rotated_transparent_image(allarea, fb, fb,null);
-epd_draw_grayscale_image(fullscreen, fb);
+pushFramebuffer(fb);
+//epd_draw_grayscale_image(fullscreen, fb);
 epd_poweroff();
 delay(3000);
 
@@ -176,9 +179,10 @@ void setup()
 {
     Serial.begin(115200);
    
-    epd_init();
+    //epd_init();
     //epd_set_rotation(EPD_ROT_PORTRAIT);
-    
+    lilygo_init();
+
     fb = (uint8_t *)ps_calloc(sizeof(uint8_t), Display_HEIGHT * Display_WIDTH / 2);
     if (!fb) {
         Serial.println("alloc memory failed");

@@ -1,8 +1,8 @@
 #include "epdiy.h"
-//#include "epd_board.h"
-//#include "epd_display.h"
-//#include "render.h"
-//#include "output_common/render_method.h"
+#include "epd_board.h"
+#include "epd_display.h"
+#include "render.h"
+#include "output_common/render_method.h"
 
 #include <esp_assert.h>
 #include <esp_heap_caps.h>
@@ -16,10 +16,10 @@ typedef struct {
     uint16_t y;
 } Coord_xy;
 
-//static const EpdDisplay_t* display = NULL;
+static const EpdDisplay_t* display = NULL;
 
 // Display rotation. Can be updated using epd_set_rotation(enum EpdRotation)
-static enum EpdRotation display_rotation = EPD_ROT_PORTRAIT;
+static enum EpdRotation display_rotation = EPD_ROT_LANDSCAPE;
 
 #ifndef _swap_int
 #define _swap_int(a, b)                                                        \
@@ -35,8 +35,7 @@ EpdRect epd_full_screen() {
   return area;
 }
 
-
-//void epd_clear() { epd_clear_area(epd_full_screen()); }
+void epd_clear() { epd_clear_area(epd_full_screen()); }
 
 void epd_draw_hline(int x, int y, int length, uint8_t color,
                     uint8_t *framebuffer) {
@@ -477,7 +476,7 @@ void epd_draw_rotated_image(EpdRect image_area, const uint8_t *image_buffer, uin
       epd_copy_to_framebuffer(image_area, image_buffer, framebuffer);
     }
 }
-/*
+
 void epd_poweron() {
   epd_current_board()->poweron(epd_ctrl_state());
 }
@@ -527,18 +526,17 @@ const EpdDisplay_t* epd_get_display() {
     assert(display != NULL);
     return display;
 }
-*/
+
 int epd_width() {
     //return display->width;
-    return 540;
-    
+    return 960;
 }
 
 int epd_height() {
     //return display->height;
-    return 960;
+  return 540;
 }
-/*
+
 void epd_set_lcd_pixel_clock_MHz(int frequency) {
 #ifdef RENDER_METHOD_LCD
     void epd_lcd_set_pixel_clock_MHz(int frequency);
@@ -547,4 +545,3 @@ void epd_set_lcd_pixel_clock_MHz(int frequency) {
     ESP_LOGW("epdiy", "called set_lcd_pixel_clock_MHz, but LCD driver is not used!");
 #endif
 }
-*/

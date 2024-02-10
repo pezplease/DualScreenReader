@@ -209,8 +209,8 @@ void show_jpg_from_buff(uint8_t *buff, uint32_t buff_size, Rect_t area)
     time_update_screen = esp_timer_get_time();
 #endif
 
-    epd_clear_area(area);
-    epd_draw_grayscale_image(area, decoded_image);
+    epd_lily_clear_area(area);
+    epd_lily_draw_grayscale_image(area, decoded_image);
 
 #if LIBJPEG_MEASURE
     time_update_screen = (esp_timer_get_time() - time_update_screen) / 1000;

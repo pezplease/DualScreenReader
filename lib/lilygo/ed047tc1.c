@@ -142,7 +142,7 @@ void epd_base_init(uint32_t epd_row_width)
     rmt_pulse_init(CKV);
 }
 
-void epd_poweron()
+void epd_lily_poweron()
 {
     config_reg.ep_scan_direction = true;
     config_reg.power_disable = false;
@@ -159,7 +159,7 @@ void epd_poweron()
     fast_gpio_set_hi(STH);
 }
 
-void epd_poweroff()
+void epd_lily_poweroff()
 {
     config_reg.pos_power_enable = false;
     push_cfg(&config_reg);
@@ -174,7 +174,7 @@ void epd_poweroff()
     push_cfg(&config_reg);
 }
 
-void epd_poweroff_all()
+void epd_lily_poweroff_all()
 {
     memset(&config_reg, 0, sizeof(config_reg));
     push_cfg(&config_reg);

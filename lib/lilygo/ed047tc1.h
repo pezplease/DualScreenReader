@@ -82,8 +82,8 @@ extern "C" {
 /******************************************************************************/
 
 void epd_base_init(uint32_t epd_row_width);
-void epd_poweron();
-void epd_poweroff();
+void epd_lily_poweron();
+void epd_lily_poweroff();
 
 /**
  * @brief Start a draw cycle.

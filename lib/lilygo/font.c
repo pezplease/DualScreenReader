@@ -102,7 +102,7 @@ static utf_t *utf[] = {
 /***        exported functions                                              ***/
 /******************************************************************************/
 
-void get_glyph(const GFXfont *font, uint32_t code_point, GFXglyph **glyph)
+void get_glyph_lily(const GFXfont *font, uint32_t code_point, GFXglyph **glyph)
 {
     UnicodeInterval *intervals = font->intervals;
     *glyph = NULL;
@@ -123,7 +123,7 @@ void get_glyph(const GFXfont *font, uint32_t code_point, GFXglyph **glyph)
 }
 
 
-void get_text_bounds(const GFXfont *font,
+void get_lily_text_bounds(const GFXfont *font,
                      const char *string,
                      int32_t *x,
                      int32_t *y,
@@ -164,7 +164,7 @@ void get_text_bounds(const GFXfont *font,
     *h = maxy - miny;
 }
 
-void write_mode(const GFXfont *font,
+void write_mode_lily(const GFXfont *font,
                 const char *string,
                 int32_t *cursor_x,
                 int32_t *cursor_y,
@@ -180,7 +180,7 @@ void write_mode(const GFXfont *font,
     int32_t x1 = 0, y1 = 0, w = 0, h = 0;
     int32_t tmp_cur_x = *cursor_x;
     int32_t tmp_cur_y = *cursor_y;
-    get_text_bounds(font, string, &tmp_cur_x, &tmp_cur_y, &x1, &y1, &w, &h, &props);
+    get_lily_text_bounds(font, string, &tmp_cur_x, &tmp_cur_y, &x1, &y1, &w, &h, &props);
 
     uint8_t *buffer;
     int32_t buf_width;
@@ -220,7 +220,7 @@ void write_mode(const GFXfont *font,
     {
         for (int32_t l = 0; l < font->advance_y; l++)
         {
-            epd_draw_hline(local_cursor_x,
+            epd_lily_draw_hline(local_cursor_x,
                            local_cursor_y - (font->advance_y - baseline_height) + l,
                            w,
                            bg << 4,
@@ -243,23 +243,23 @@ void write_mode(const GFXfont *font,
             .width = w,
             .height = h
         };
-        epd_draw_image(area, buffer, mode);
+        epd_lily_draw_image(area, buffer, mode);
         free(buffer);
     }
 }
 
 
-void writeln(const GFXfont *font,
+void writeln_lily(const GFXfont *font,
              const char *string,
              int32_t *cursor_x,
              int32_t *cursor_y,
              uint8_t *framebuffer)
 {
-    return write_mode(font, string, cursor_x, cursor_y, framebuffer, BLACK_ON_WHITE, NULL);
+    return write_mode_lily(font, string, cursor_x, cursor_y, framebuffer, BLACK_ON_WHITE, NULL);
 }
 
 
-void write_string(const GFXfont *font,
+void write_string_lily(const GFXfont *font,
                   const char *string,
                   int32_t *cursor_x,
                   int32_t *cursor_y,
@@ -283,7 +283,7 @@ void write_string(const GFXfont *font,
     while ((token = strsep(&newstring, "\n")) != NULL)
     {
         *cursor_x = line_start;
-        writeln(font, token, cursor_x, cursor_y, framebuffer);
+        writeln_lily(font, token, cursor_x, cursor_y, framebuffer);
         *cursor_y += font->advance_y;
     }
 
@@ -355,11 +355,11 @@ static void IRAM_ATTR draw_char(const GFXfont *font,
                                 const FontProperties *props)
 {
     GFXglyph *glyph;
-    get_glyph(font, cp, &glyph);
+    get_glyph_lily(font, cp, &glyph);
 
     if (!glyph)
     {
-        get_glyph(font, props->fallback_glyph, &glyph);
+        get_glyph_lily(font, props->fallback_glyph, &glyph);
     }
 
     if (!glyph)
@@ -448,11 +448,11 @@ static void get_char_bounds(const GFXfont *font,
                             const FontProperties *props)
 {
     GFXglyph *glyph;
-    get_glyph(font, cp, &glyph);
+    get_glyph_lily(font, cp, &glyph);
 
     if (!glyph)
     {
-        get_glyph(font, props->fallback_glyph, &glyph);
+        get_glyph_lily(font, props->fallback_glyph, &glyph);
     }
 
     if (!glyph) return ;

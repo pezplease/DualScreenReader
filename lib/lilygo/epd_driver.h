@@ -26,7 +26,7 @@ extern "C" {
  * @brief Width of the display area in pixels.
  */
 //int EPD_WIDTH = 960;
-#define EPD_WIDTH 540
+#define EPD_WIDTH 960
 //was width 960
 
 
@@ -34,7 +34,7 @@ extern "C" {
  * @brief Height of the display area in pixels.
  */
 //int EPD_HEIGHT = 540;
-#define EPD_HEIGHT 960
+#define EPD_HEIGHT 540
 //was height 540
 /******************************************************************************/
 /***        type definitions                                                ***/
@@ -91,31 +91,31 @@ typedef struct
 /**
  * @brief Initialize the ePaper display
  */
-void epd_init();
+void epd_lily_init();
 
 /**
  * @brief Enable display power supply.
  */
-void epd_poweron();
+void epd_lily_poweron();
 
 /**
  * @brief Disable display power supply.
  */
-void epd_poweroff();
+void epd_lily_poweroff();
 
 /**
  * @brief Clear the whole screen by flashing it.
  */
-void epd_clear();
+void epd_lily_clear();
 
-void epd_poweroff_all();
+void epd_lily_poweroff_all();
 
 /**
  * @brief Clear an area by flashing it.
  *
  * @param area The area to clear.
  */
-void epd_clear_area(Rect_t area);
+void epd_lily_clear_area(Rect_t area);
 
 /**
  * @brief Clear an area by flashing it.
@@ -124,7 +124,7 @@ void epd_clear_area(Rect_t area);
  * @param cycles     The number of black-to-white clear cycles.
  * @param cycle_time Length of a cycle. Default: 50 (us).
  */
-void epd_clear_area_cycles(Rect_t area, int32_t cycles, int32_t cycle_time);
+void epd_lily_clear_area_cycles(Rect_t area, int32_t cycles, int32_t cycle_time);
 
 /**
  * @brief Darken / lighten an area for a given time.
@@ -133,7 +133,7 @@ void epd_clear_area_cycles(Rect_t area, int32_t cycles, int32_t cycle_time);
  * @param time  The time in us to apply voltage to each pixel.
  * @param color 1: lighten, 0: darken.
  */
-void epd_push_pixels(Rect_t area, int16_t time, int32_t color);
+void epd_lily_push_pixels(Rect_t area, int16_t time, int32_t color);
 
 /**
  * @brief Draw a picture to a given area. The image area is not cleared and
@@ -146,7 +146,7 @@ void epd_push_pixels(Rect_t area, int16_t time, int32_t color);
  *             over multiple rows, images of uneven width must add a padding
  *             nibble per line.
  */
-void IRAM_ATTR epd_draw_grayscale_image(Rect_t area, uint8_t *data);
+void IRAM_ATTR epd_lily_draw_grayscale_image(Rect_t area, uint8_t *data);
 
 /**
  * @brief Draw a picture to a given area, with some draw mode.
@@ -161,14 +161,14 @@ void IRAM_ATTR epd_draw_grayscale_image(Rect_t area, uint8_t *data);
  *             over multiple rows, images of uneven width must add a padding
  *             nibble per line.
  */
-void IRAM_ATTR epd_draw_image(Rect_t area, uint8_t *data, DrawMode_t mode);
+void IRAM_ATTR epd_lily_draw_image(Rect_t area, uint8_t *data, DrawMode_t mode);
 
-void IRAM_ATTR epd_draw_frame_1bit(Rect_t area, uint8_t *ptr, DrawMode_t mode, int32_t time);
+void IRAM_ATTR epd_lily_draw_frame_1bit(Rect_t area, uint8_t *ptr, DrawMode_t mode, int32_t time);
 
 /**
  * @brief Rectancle representing the whole screen area.
  */
-Rect_t epd_full_screen();
+Rect_t epd_lily_full_screen();
 
 /**
  * @brief Draw a picture to a given framebuffer.
@@ -182,8 +182,8 @@ Rect_t epd_full_screen();
  * @param framebuffer The framebuffer object, which must
  *                    be `EPD_WIDTH / 2 * EPD_HEIGHT` large.
  */
-void epd_copy_to_framebuffer(Rect_t image_area, uint8_t *image_data,
-                             uint8_t *framebuffer);
+//void epd_lily_copy_to_framebuffer(Rect_t image_area, uint8_t *image_data,
+//                             uint8_t *framebuffer);
 
 /**
  * @brief Draw a pixel a given framebuffer.
@@ -193,7 +193,7 @@ void epd_copy_to_framebuffer(Rect_t image_area, uint8_t *image_data,
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to.
  */
-void epd_draw_pixel(int32_t x, int32_t y, uint8_t color,
+void epd_lily_draw_pixel(int32_t x, int32_t y, uint8_t color,
                     uint8_t *framebuffer);
 
 /**
@@ -206,7 +206,7 @@ void epd_draw_pixel(int32_t x, int32_t y, uint8_t color,
  * @param framebuffer The framebuffer to draw to, which must
  *                    be `EPD_WIDTH / 2 * EPD_HEIGHT` bytes large.
  */
-void epd_draw_hline(int32_t x, int32_t y, int32_t length, uint8_t color,
+void epd_lily_draw_hline(int32_t x, int32_t y, int32_t length, uint8_t color,
                     uint8_t *framebuffer);
 
 /**
@@ -219,7 +219,7 @@ void epd_draw_hline(int32_t x, int32_t y, int32_t length, uint8_t color,
  * @param framebuffer The framebuffer to draw to, which must
  *                    be `EPD_WIDTH / 2 * EPD_HEIGHT` bytes large.
  */
-void epd_draw_vline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t *framebuffer);
+void epd_lily_draw_vline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a circle with given center and radius
@@ -230,7 +230,7 @@ void epd_draw_vline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to
  */
-void epd_draw_circle(int32_t x, int32_t y, int32_t r, uint8_t color, uint8_t *framebuffer);
+void epd_lily_draw_circle(int32_t x, int32_t y, int32_t r, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a circle with fill with given center and radius
@@ -241,7 +241,7 @@ void epd_draw_circle(int32_t x, int32_t y, int32_t r, uint8_t color, uint8_t *fr
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to,
  */
-void epd_fill_circle(int32_t x, int32_t y, int32_t r, uint8_t color, uint8_t *framebuffer);
+void epd_lily_fill_circle(int32_t x, int32_t y, int32_t r, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a rectanle with no fill color
@@ -253,7 +253,7 @@ void epd_fill_circle(int32_t x, int32_t y, int32_t r, uint8_t color, uint8_t *fr
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to,
  */
-void epd_draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer);
+//void epd_lily_draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a rectanle with fill color
@@ -265,7 +265,7 @@ void epd_draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, ui
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to
  */
-void epd_fill_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer);
+//void epd_lily_fill_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Write a line.  Bresenham's algorithm - thx wikpedia
@@ -277,7 +277,7 @@ void epd_fill_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, ui
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to
  */
-void epd_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer);
+void epd_lily_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a line
@@ -289,7 +289,7 @@ void epd_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t colo
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to
  */
-void epd_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer);
+void epd_lily_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a triangle with no fill color
@@ -303,7 +303,7 @@ void epd_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to
  */
-void epd_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t *framebuffer);
+void epd_lily_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Draw a triangle with color-fill
@@ -317,7 +317,7 @@ void epd_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x
  * @param color       The gray value of the line (0-255);
  * @param framebuffer The framebuffer to draw to
  */
-void epd_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t *framebuffer);
+void epd_lily_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t *framebuffer);
 
 /**
  * @brief Font data stored PER GLYPH
@@ -362,14 +362,14 @@ typedef struct
  * @brief Get the text bounds for string, when drawn at (x, y).
  *        Set font properties to NULL to use the defaults.
  */
-void get_text_bounds(const GFXfont *font, const char *string, int32_t *x, int32_t *y,
+void get_lily_text_bounds(const GFXfont *font, const char *string, int32_t *x, int32_t *y,
                      int32_t *x1, int32_t *y1, int32_t *w, int32_t *h,
                      const FontProperties *props);
 
 /**
  * @brief Write text to the EPD.
  */
-void writeln(const GFXfont *font, const char *string, int32_t *cursor_x,
+void writeln_lily(const GFXfont *font, const char *string, int32_t *cursor_x,
              int32_t *cursor_y, uint8_t *framebuffer);
 
 /**
@@ -377,19 +377,19 @@ void writeln(const GFXfont *font, const char *string, int32_t *cursor_x,
  *
  * @note If framebuffer is NULL, draw mode `mode` is used for direct drawing.
  */
-void write_mode(const GFXfont *font, const char *string, int32_t *cursor_x,
+void write_mode_lily(const GFXfont *font, const char *string, int32_t *cursor_x,
                 int32_t *cursor_y, uint8_t *framebuffer, DrawMode_t mode,
                 const FontProperties *properties);
 
 /**
  * @brief Get the font glyph for a unicode code point.
  */
-void get_glyph(const GFXfont *font, uint32_t code_point, GFXglyph **glyph);
+void get_glyph_lily(const GFXfont *font, uint32_t code_point, GFXglyph **glyph);
 
 /**
  * @brief Write a (multi-line) string to the EPD.
  */
-void write_string(const GFXfont *font, const char *string, int32_t *cursor_x,
+void write_string_lily(const GFXfont *font, const char *string, int32_t *cursor_x,
                   int32_t *cursor_y, uint8_t *framebuffer);
 
 #ifdef __cplusplus

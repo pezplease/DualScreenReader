@@ -15,8 +15,8 @@
 #include "epdiy.h"
 
 //lilygo epd drivers
-//#include "epd_driver.h"
-#include "lilyrender.h"
+#include "epd_driver.h"
+//#include "lilyrender.h"
 
 
 // battery
@@ -40,17 +40,15 @@ Button2 btn2(BUTTON_2);
 Button2 btn3(BUTTON_3);
 #endif
 
-//uint8_t *framebuffer;
-//uint8_t *rotatedFramebuffer;
-
-//actual dimensions of the screen (lilygo 4.7 is height 540 width 960)
+//actual dimensions of the screen (lilygo 4.7 height 540 width 960)
 int Display_HEIGHT = 540;
 int Display_WIDTH = 960;
 
 int Buffer_HEIGHT = 960;
 int Buffer_WIDTH = 540;
 uint8_t *fb;
-uint8_t *rot_fb;
+//uint8_t *rot_fb;
+
 /*
 Rect_t fullscreen = {
     .x = 0,
@@ -59,12 +57,10 @@ Rect_t fullscreen = {
     .height =  Display_HEIGHT,
 };
 */
-//EpdRect allarea = {.x = 0, .y = 0, .width = epd_width(), .height = epd_height()};
 
+EpdRotation orientation = EPD_ROT_INVERTED_PORTRAIT;
 
-EpdRotation orientation = EPD_ROT_LANDSCAPE;
-
-const char *testsentence = "This is an E-reader By Tatman Bernard";
+const char *testsentence = "This is an E-reader By Tatman Bernard. It uses an ESP32 board and a Lilygo 4.7 inch display. It uses two screens and an 18650 battery.";
 
 void rotateFramebuffer(uint8_t *normalbuffer, uint8_t *rotatedbuffer){
 
@@ -81,67 +77,35 @@ for (int x = 0; x < Display_WIDTH; x++) {
             rotatedbuffer[outputIndex] = normalbuffer[inputIndex];
         }
     }
-
-
-
-/*
-for (int x = 0; x < Buffer_WIDTH; x++) {
-    for (int y = 0; y < Buffer_HEIGHT; y++) {
-        int srcIndex = y * (Buffer_WIDTH / 2) + (x / 8);
-        int srcBit = x % 8;
-        int destIndex = (Buffer_WIDTH - x - 1) * (Buffer_HEIGHT / 2) + (y / 8);
-        int destBit = y % 8;
-       // Extract the pixel from the source and set it in the destination
-        uint8_t pixel = (normalbuffer[srcIndex] >> srcBit) & 0x01;
-        rotatedbuffer[destIndex] |= (pixel << destBit);
-    }
-}
-*/
-
-/*
-for (int x = 0; x < Buffer_WIDTH; x++) {
-        for (int y = 0; y < Buffer_HEIGHT; y++){
-            rotatedbuffer[y * Buffer_WIDTH + x] = normalbuffer[(Buffer_WIDTH - x - 1) * Buffer_HEIGHT + y];
-        }
-    }
-
-for (int y = 0; y < Display_HEIGHT; y++) {
-    for (int x = 0; x < Display_WIDTH; x++){
-        int originalIndex = y * Display_WIDTH + x;
-
-        int rotatedIndex = x *Display_HEIGHT + y;
-
-        rotatedbuffer[rotatedIndex] = normalbuffer[originalIndex];
-    }
-*/
 }
 
 
 void displayInfo(void)
 {
-epd_poweron();
-epd_clear();
+epd_lily_poweron();
+epd_lily_clear();
 
-    int cursor_x = Buffer_HEIGHT / 2;
-    int cursor_y = Buffer_WIDTH / 2;
-    if (orientation == EPD_ROT_PORTRAIT) {
-        // height and width switched here because portrait mode
-        cursor_x = Buffer_WIDTH / 2;
-        cursor_y = Buffer_HEIGHT / 2;
-    }
+    int screenstart_x = 10; //Display_WIDTH / 2;
+    int screenstart_y = 25; //Display_HEIGHT / 2;
+
     EpdFontProperties font_props = epd_font_properties_default();
-    font_props.flags = EPD_DRAW_ALIGN_CENTER;
+    font_props.flags = EPD_DRAW_ALIGN_LEFT;
     
-    //epd_write_string(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb, &font_props);
-epd_write_default(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb);
-    //epd_draw_hline(50,200,300,0, fb);
+   //epd_write_string(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb, &font_props);
+epd_write_default(&FiraSans_12, testsentence, &screenstart_x, &screenstart_y, fb);
+//epd_draw_hline(50,200,300,0, fb);
 //rotateFramebuffer(fb, rot_fb);
 
 //epdiy_draw_rotated_image(allarea, fb, fb);
 //epd_draw_rotated_transparent_image(allarea, fb, fb,null);
-pushFramebuffer(fb);
-//epd_draw_grayscale_image(fullscreen, fb);
-epd_poweroff();
+
+//write_string_lily((GFXfont *)&FiraSans, testsentence, &cursor_x, &cursor_y, fb);
+//epd_lily_draw_line(50,50,250,250,0x00,fb);
+//epd_lily_draw_circle(300,400,50,0x00,fb);
+epd_lily_draw_grayscale_image(epd_lily_full_screen(), fb);
+
+//epd_lily_draw_image(epd_lily_full_screen(), *fb, BLACK_ON_WHITE);
+epd_lily_poweroff();
 delay(3000);
 
 }
@@ -180,21 +144,27 @@ void setup()
     Serial.begin(115200);
    
     //epd_init();
-    //epd_set_rotation(EPD_ROT_PORTRAIT);
-    lilygo_init();
+    epd_set_rotation(EPD_ROT_INVERTED_PORTRAIT);
+    //epd_set_board(&epd_board_lilygo_t5_47);
+    //epd_init(&epd_board_lilygo_t5_47, &ED097TC2, EPD_OPTIONS_DEFAULT);
+    epd_lily_init();
+    //lilygo_init();
 
     fb = (uint8_t *)ps_calloc(sizeof(uint8_t), Display_HEIGHT * Display_WIDTH / 2);
     if (!fb) {
         Serial.println("alloc memory failed");
         while (1);
     }
+    /*
     rot_fb = (uint8_t *)ps_calloc(sizeof(uint8_t), Display_HEIGHT * Display_WIDTH / 2);
      if (!rot_fb) {
         Serial.println("alloc rot memory failed");
         while (1);
     }
-    memset(fb, 0xFF, Display_HEIGHT * Display_WIDTH / 2);
     memset(rot_fb, 0xFF, Display_HEIGHT * Display_WIDTH / 2);
+    */
+    memset(fb, 0xFF, Display_HEIGHT * Display_WIDTH / 2);
+
     //epd_poweron();
    
 

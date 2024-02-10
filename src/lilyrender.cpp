@@ -13,10 +13,9 @@ Rect_t fullscreen = {
     .width = Display_WIDTH ,
     .height =  Display_HEIGHT,
 };
-
-    epd_draw_grayscale_image(fullscreen, framebuffer);
+    epd_lily_draw_grayscale_image(fullscreen, framebuffer);
 }
 
 void lilygo_init(){
-    epd_init();
+    epd_lily_init();
 }

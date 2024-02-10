@@ -151,7 +151,7 @@ static const DRAM_ATTR uint32_t lut_1bpp[256] = {
 /***        exported functions                                              ***/
 /******************************************************************************/
 
-void epd_init()
+void epd_lily_init()
 {
     skipping = 0;
     epd_base_init(EPD_WIDTH);
@@ -162,7 +162,7 @@ void epd_init()
 }
 
 
-void epd_push_pixels(Rect_t area, int16_t time, int32_t color)
+void epd_lily_push_pixels(Rect_t area, int16_t time, int32_t color)
 {
     uint8_t row[EPD_LINE_BYTES] = { 0 };
 
@@ -211,13 +211,13 @@ void epd_push_pixels(Rect_t area, int16_t time, int32_t color)
 }
 
 
-void epd_clear_area(Rect_t area)
+void epd_lily_clear_area(Rect_t area)
 {
-    epd_clear_area_cycles(area, 4, 50);
+    epd_lily_clear_area_cycles(area, 4, 50);
 }
 
 
-void epd_clear_area_cycles(Rect_t area, int32_t cycles, int32_t cycle_time)
+void epd_lily_clear_area_cycles(Rect_t area, int32_t cycles, int32_t cycle_time)
 {
     const int16_t white_time = cycle_time;
     const int16_t dark_time = cycle_time;
@@ -226,26 +226,26 @@ void epd_clear_area_cycles(Rect_t area, int32_t cycles, int32_t cycle_time)
     {
         for (int32_t i = 0; i < 4; i++)
         {
-            epd_push_pixels(area, dark_time, 0);
+            epd_lily_push_pixels(area, dark_time, 0);
         }
         for (int32_t i = 0; i < 4; i++)
         {
-            epd_push_pixels(area, white_time, 1);
+            epd_lily_push_pixels(area, white_time, 1);
         }
     }
 }
 
 
-Rect_t epd_full_screen()
+Rect_t epd_lily_full_screen()
 {
     Rect_t area = {.x = 0, .y = 0, .width = EPD_WIDTH, .height = EPD_HEIGHT};
     return area;
 }
 
 
-void epd_clear()
+void epd_lily_clear()
 {
-    epd_clear_area(epd_full_screen());
+    epd_lily_clear_area(epd_lily_full_screen());
 }
 
 
@@ -279,7 +279,7 @@ void IRAM_ATTR calc_epd_input_4bpp(uint32_t *line_data, uint8_t *epd_input,
 }
 
 
-void IRAM_ATTR calc_epd_input_1bpp(uint8_t *line_data, uint8_t *epd_input,
+void IRAM_ATTR calc_lily_epd_input_1bpp(uint8_t *line_data, uint8_t *epd_input,
                                    DrawMode_t mode)
 {
     uint32_t *wide_epd_input = (uint32_t *)epd_input;
@@ -301,27 +301,27 @@ inline uint32_t min(uint32_t x, uint32_t y)
 }
 
 
-void epd_draw_hline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t *framebuffer)
+void epd_lily_draw_hline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t *framebuffer)
 {
     for (int32_t i = 0; i < length; i++)
     {
         int32_t xx = x + i;
-        epd_draw_pixel(xx, y, color, framebuffer);
+        epd_lily_draw_pixel(xx, y, color, framebuffer);
     }
 }
 
 
-void epd_draw_vline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t *framebuffer)
+void epd_lily_draw_vline(int32_t x, int32_t y, int32_t length, uint8_t color, uint8_t *framebuffer)
 {
     for (int32_t i = 0; i < length; i++)
     {
         int32_t yy = y + i;
-        epd_draw_pixel(x, yy, color, framebuffer);
+        epd_lily_draw_pixel(x, yy, color, framebuffer);
     }
 }
 
 
-void epd_draw_pixel(int32_t x, int32_t y, uint8_t color, uint8_t *framebuffer)
+void epd_lily_draw_pixel(int32_t x, int32_t y, uint8_t color, uint8_t *framebuffer)
 {
     if (x < 0 || x >= EPD_WIDTH)
     {
@@ -343,7 +343,7 @@ void epd_draw_pixel(int32_t x, int32_t y, uint8_t color, uint8_t *framebuffer)
 }
 
 
-void epd_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color, uint8_t *framebuffer)
+void epd_lily_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color, uint8_t *framebuffer)
 {
     int32_t f = 1 - r;
     int32_t ddF_x = 1;
@@ -351,10 +351,10 @@ void epd_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color, uint8_t *
     int32_t x = 0;
     int32_t y = r;
 
-    epd_draw_pixel(x0, y0 + r, color, framebuffer);
-    epd_draw_pixel(x0, y0 - r, color, framebuffer);
-    epd_draw_pixel(x0 + r, y0, color, framebuffer);
-    epd_draw_pixel(x0 - r, y0, color, framebuffer);
+    epd_lily_draw_pixel(x0, y0 + r, color, framebuffer);
+    epd_lily_draw_pixel(x0, y0 - r, color, framebuffer);
+    epd_lily_draw_pixel(x0 + r, y0, color, framebuffer);
+    epd_lily_draw_pixel(x0 - r, y0, color, framebuffer);
 
     while (x < y)
     {
@@ -368,21 +368,21 @@ void epd_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color, uint8_t *
         ddF_x += 2;
         f += ddF_x;
 
-        epd_draw_pixel(x0 + x, y0 + y, color, framebuffer);
-        epd_draw_pixel(x0 - x, y0 + y, color, framebuffer);
-        epd_draw_pixel(x0 + x, y0 - y, color, framebuffer);
-        epd_draw_pixel(x0 - x, y0 - y, color, framebuffer);
-        epd_draw_pixel(x0 + y, y0 + x, color, framebuffer);
-        epd_draw_pixel(x0 - y, y0 + x, color, framebuffer);
-        epd_draw_pixel(x0 + y, y0 - x, color, framebuffer);
-        epd_draw_pixel(x0 - y, y0 - x, color, framebuffer);
+        epd_lily_draw_pixel(x0 + x, y0 + y, color, framebuffer);
+        epd_lily_draw_pixel(x0 - x, y0 + y, color, framebuffer);
+        epd_lily_draw_pixel(x0 + x, y0 - y, color, framebuffer);
+        epd_lily_draw_pixel(x0 - x, y0 - y, color, framebuffer);
+        epd_lily_draw_pixel(x0 + y, y0 + x, color, framebuffer);
+        epd_lily_draw_pixel(x0 - y, y0 + x, color, framebuffer);
+        epd_lily_draw_pixel(x0 + y, y0 - x, color, framebuffer);
+        epd_lily_draw_pixel(x0 - y, y0 - x, color, framebuffer);
     }
 }
 
 
-void epd_fill_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color, uint8_t *framebuffer)
+void epd_lily_fill_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color, uint8_t *framebuffer)
 {
-    epd_draw_vline(x0, y0 - r, 2 * r + 1, color, framebuffer);
+    epd_lily_draw_vline(x0, y0 - r, 2 * r + 1, color, framebuffer);
     epd_fill_circle_helper(x0, y0, r, 3, 0, color, framebuffer);
 }
 
@@ -416,16 +416,16 @@ static void epd_fill_circle_helper(int32_t x0, int32_t y0, int32_t r, int32_t co
         if (x < (y + 1))
         {
             if (corners & 1)
-                epd_draw_vline(x0 + x, y0 - y, 2 * y + delta, color, framebuffer);
+                epd_lily_draw_vline(x0 + x, y0 - y, 2 * y + delta, color, framebuffer);
             if (corners & 2)
-                epd_draw_vline(x0 - x, y0 - y, 2 * y + delta, color, framebuffer);
+                epd_lily_draw_vline(x0 - x, y0 - y, 2 * y + delta, color, framebuffer);
         }
         if (y != py)
         {
             if (corners & 1)
-                epd_draw_vline(x0 + py, y0 - px, 2 * px + delta, color, framebuffer);
+                epd_lily_draw_vline(x0 + py, y0 - px, 2 * px + delta, color, framebuffer);
             if (corners & 2)
-                epd_draw_vline(x0 - py, y0 - px, 2 * px + delta, color, framebuffer);
+                epd_lily_draw_vline(x0 - py, y0 - px, 2 * px + delta, color, framebuffer);
             py = y;
         }
         px = x;
@@ -433,25 +433,25 @@ static void epd_fill_circle_helper(int32_t x0, int32_t y0, int32_t r, int32_t co
 }
 
 
-void epd_draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer)
+void epd_lily_draw_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer)
 {
-    epd_draw_hline(x, y, w, color, framebuffer);
-    epd_draw_hline(x, y + h - 1, w, color, framebuffer);
-    epd_draw_vline(x, y, h, color, framebuffer);
-    epd_draw_vline(x + w - 1, y, h, color, framebuffer);
+    epd_lily_draw_hline(x, y, w, color, framebuffer);
+    epd_lily_draw_hline(x, y + h - 1, w, color, framebuffer);
+    epd_lily_draw_vline(x, y, h, color, framebuffer);
+    epd_lily_draw_vline(x + w - 1, y, h, color, framebuffer);
 }
 
 
-void epd_fill_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer)
+void epd_lily_fill_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color, uint8_t *framebuffer)
 {
     for (int32_t i = x; i < x + w; i++)
     {
-        epd_draw_vline(i, y, h, color, framebuffer);
+        epd_lily_draw_vline(i, y, h, color, framebuffer);
     }
 }
 
 
-void epd_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer)
+void epd_lily_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer)
 {
     int32_t steep = abs(y1 - y0) > abs(x1 - x0);
     if (steep)
@@ -486,11 +486,11 @@ void epd_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t colo
     {
         if (steep)
         {
-            epd_draw_pixel(y0, x0, color, framebuffer);
+            epd_lily_draw_pixel(y0, x0, color, framebuffer);
         }
         else
         {
-            epd_draw_pixel(x0, y0, color, framebuffer);
+            epd_lily_draw_pixel(x0, y0, color, framebuffer);
         }
         err -= dy;
         if (err < 0)
@@ -502,38 +502,38 @@ void epd_write_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t colo
 }
 
 
-void epd_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer)
+void epd_lily_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color, uint8_t *framebuffer)
 {
     // Update in subclasses if desired!
     if (x0 == x1)
     {
         if (y0 > y1)
             _swap_int(y0, y1);
-        epd_draw_vline(x0, y0, y1 - y0 + 1, color, framebuffer);
+        epd_lily_draw_vline(x0, y0, y1 - y0 + 1, color, framebuffer);
     }
     else if (y0 == y1)
     {
         if (x0 > x1)
             _swap_int(x0, x1);
-        epd_draw_hline(x0, y0, x1 - x0 + 1, color, framebuffer);
+        epd_lily_draw_hline(x0, y0, x1 - x0 + 1, color, framebuffer);
     }
     else
     {
-        epd_write_line(x0, y0, x1, y1, color, framebuffer);
+        epd_lily_write_line(x0, y0, x1, y1, color, framebuffer);
     }
 }
 
 
-void epd_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+void epd_lily_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                        uint8_t color, uint8_t *framebuffer)
 {
-    epd_draw_line(x0, y0, x1, y1, color, framebuffer);
-    epd_draw_line(x1, y1, x2, y2, color, framebuffer);
-    epd_draw_line(x2, y2, x0, y0, color, framebuffer);
+    epd_lily_draw_line(x0, y0, x1, y1, color, framebuffer);
+    epd_lily_draw_line(x1, y1, x2, y2, color, framebuffer);
+    epd_lily_draw_line(x2, y2, x0, y0, color, framebuffer);
 }
 
 
-void epd_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+void epd_lily_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                        uint8_t color, uint8_t *framebuffer)
 {
     int32_t a, b, y, last;
@@ -566,7 +566,7 @@ void epd_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x
             a = x2;
         else if (x2 > b)
             b = x2;
-        epd_draw_hline(a, y0, b - a + 1, color, framebuffer);
+        epd_lily_draw_hline(a, y0, b - a + 1, color, framebuffer);
         return;
     }
 
@@ -602,7 +602,7 @@ void epd_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x
         */
         if (a > b)
             _swap_int(a, b);
-        epd_draw_hline(a, y, b - a + 1, color, framebuffer);
+        epd_lily_draw_hline(a, y, b - a + 1, color, framebuffer);
     }
 
     // For lower part of triangle, find scanline crossings for segments
@@ -621,12 +621,12 @@ void epd_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x
         */
         if (a > b)
             _swap_int(a, b);
-        epd_draw_hline(a, y, b - a + 1, color, framebuffer);
+        epd_lily_draw_hline(a, y, b - a + 1, color, framebuffer);
     }
 }
 
 
-void epd_copy_to_framebuffer(Rect_t image_area, uint8_t *image_data,
+void epd_lily_copy_to_framebuffer(Rect_t image_area, uint8_t *image_data,
                              uint8_t *framebuffer)
 {
     assert(image_data != NULL || framebuffer != NULL);
@@ -666,13 +666,13 @@ void epd_copy_to_framebuffer(Rect_t image_area, uint8_t *image_data,
 }
 
 
-void IRAM_ATTR epd_draw_grayscale_image(Rect_t area, uint8_t *data)
+void IRAM_ATTR epd_lily_draw_grayscale_image(Rect_t area, uint8_t *data)
 {
-    epd_draw_image(area, data, BLACK_ON_WHITE);
+    epd_lily_draw_image(area, data, BLACK_ON_WHITE);
 }
 
 
-void IRAM_ATTR epd_draw_frame_1bit(Rect_t area, uint8_t *ptr,
+void IRAM_ATTR epd_lily_draw_frame_1bit(Rect_t area, uint8_t *ptr,
                                    DrawMode_t mode, int32_t time)
 {
     epd_start_frame();
@@ -746,7 +746,7 @@ void IRAM_ATTR epd_draw_frame_1bit(Rect_t area, uint8_t *ptr,
             }
             lp = line;
         }
-        calc_epd_input_1bpp(lp, epd_get_current_buffer(), mode);
+        calc_lily_epd_input_1bpp(lp, epd_get_current_buffer(), mode);
         epd_output_row(time);
         if (shifted)
         {
@@ -761,7 +761,7 @@ void IRAM_ATTR epd_draw_frame_1bit(Rect_t area, uint8_t *ptr,
 }
 
 
-void IRAM_ATTR epd_draw_image(Rect_t area, uint8_t *data, DrawMode_t mode)
+void IRAM_ATTR epd_lily_draw_image(Rect_t area, uint8_t *data, DrawMode_t mode)
 {
     uint8_t frame_count = 15;
 

@@ -268,13 +268,13 @@ void write_string_lily(const GFXfont *font,
     char *token, *newstring, *tofree;
     if (string == NULL)
     {
-        ESP_LOGE("font.c", "cannot draw a NULL string!");
+        ESP_LOGE("lilyfont.c", "cannot draw a NULL string!");
         return;
     }
     tofree = newstring = strdup(string);
     if (newstring == NULL)
     {
-        ESP_LOGE("font.c", "cannot allocate string copy!");
+        ESP_LOGE("lilyfont.c", "cannot allocate string copy!");
         return;
     }
 

@@ -13,10 +13,10 @@
 // epd
 #include "epd_highlevel.h"
 #include "epdiy.h"
-
+//#include "font.c"
 //lilygo epd drivers
 #include "epd_driver.h"
-//#include "lilyrender.h"
+
 
 
 // battery
@@ -60,7 +60,8 @@ Rect_t fullscreen = {
 
 EpdRotation orientation = EPD_ROT_INVERTED_PORTRAIT;
 
-const char *testsentence = "This is an E-reader By Tatman Bernard. It uses an ESP32 board and a Lilygo 4.7 inch display. It uses two screens and an 18650 battery.";
+const char *testsentence =
+"This is an E-reader By Tatman Bernard. \n It uses an ESP32 board and a Lilygo \n4.7 inch display. It uses two screens and \nan 18650 battery.";
 
 void rotateFramebuffer(uint8_t *normalbuffer, uint8_t *rotatedbuffer){
 
@@ -88,11 +89,12 @@ epd_lily_clear();
     int screenstart_x = 10; //Display_WIDTH / 2;
     int screenstart_y = 25; //Display_HEIGHT / 2;
 
-    EpdFontProperties font_props = epd_font_properties_default();
-    font_props.flags = EPD_DRAW_ALIGN_LEFT;
+    const EpdFontProperties font_props = epd_font_properties_default();
+    //font_props.flags = EPD_DRAW_ALIGN_LEFT;
     
    //epd_write_string(&FiraSans_12, testsentence, &cursor_x, &cursor_y, fb, &font_props);
 epd_write_default(&FiraSans_12, testsentence, &screenstart_x, &screenstart_y, fb);
+//epd_write_line(&FiraSans_12, testsentence, &screenstart_x, &screenstart_y, fb, &font_props);
 //epd_draw_hline(50,200,300,0, fb);
 //rotateFramebuffer(fb, rot_fb);
 
@@ -113,23 +115,12 @@ delay(3000);
 void display_center_message(const char* text) {
     // first set full screen to white
     epd_hl_set_all_white(&hl);
-
-    int cursor_x = EPD_WIDTH / 2;
-    int cursor_y = EPD_HEIGHT / 2;
-    if (orientation == EPD_ROT_PORTRAIT) {
-        // height and width switched here because portrait mode
-        cursor_x = EPD_HEIGHT / 2;
-        cursor_y = EPD_WIDTH / 2;
-    }
     EpdFontProperties font_props = epd_font_properties_default();
     font_props.flags = EPD_DRAW_ALIGN_CENTER;
     epd_write_string(&FiraSans_12, text, &cursor_x, &cursor_y, fb, &font_props);
 
-    epd_poweron();
     err = epd_hl_update_screen(&hl, MODE_GC16, temperature);
-    delay(500);
-    epd_poweroff();
-    delay(1000);
+
 }
 */
 

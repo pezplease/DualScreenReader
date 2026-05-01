@@ -1,8 +1,5 @@
 #include "textrender.h"
 
-#include "font.c"
-
-
-void textwrapdisplay(char text){
- 
-};
+void textwrapdisplay(char text)
+{
+}

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/atomic14/diy-esp32-epub-reader/main/lib/Epub/RubbishHtmlParser/blocks/ImageBlock.h\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/atomic14/diy-esp32-epub-reader/main/lib/Epub/RubbishHtmlParser/blocks/TextBlock.h\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/atomic14/diy-esp32-epub-reader/main/lib/Epub/RubbishHtmlParser/blocks/TextBlock.cpp\")",
+      "Bash(cp /tmp/atomic14-epub/lib/miniz-2.2.0/miniz.h /e/CodingProjects/DualScreenReader/lib/miniz/)",
+      "Bash(cp /tmp/atomic14-epub/lib/miniz-2.2.0/miniz.c /e/CodingProjects/DualScreenReader/lib/miniz/)",
+      "Bash(cp -r /tmp/atomic14-epub/lib/Fonts /e/CodingProjects/DualScreenReader/lib/)",
+      "Bash(cp -r /tmp/atomic14-epub/lib/Images /e/CodingProjects/DualScreenReader/lib/)",
+      "Bash(cp /tmp/atomic14-epub/lib/tjpgd3/src/tjpgd.c /e/CodingProjects/DualScreenReader/lib/tjpgd3/)"
+    ]
+  }
+}

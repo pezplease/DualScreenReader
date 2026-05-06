@@ -11,10 +11,12 @@ IRAM_ATTR void button_interrupt_handler(void *param)
   button->handle_interrupt();
 }
 
-GPIOButton::GPIOButton(gpio_num_t gpio_pin, int active_level, ButtonCallback_t callback)
+GPIOButton::GPIOButton(gpio_num_t gpio_pin, int active_level, ButtonCallback_t callback,
+                       ButtonCallback_t long_press_callback)
     : gpio_pin(gpio_pin),
       active_level(active_level),
-      callback(callback)
+      callback(callback),
+      long_press_callback(long_press_callback)
 {
   // setup the pin
   gpio_set_direction(gpio_pin, GPIO_MODE_INPUT);
@@ -35,10 +37,13 @@ void GPIOButton::handle_interrupt()
     // the button was pressed - so now it must have been released
     button_pressed = false;
     int64_t button_release_time = esp_timer_get_time();
-    // has enough time passed to call this a button press?
-    if (button_release_time - button_press_start > BUTTON_DEBOUNCE)
+    int64_t duration = button_release_time - button_press_start;
+    if (duration >= LONG_PRESS_US && long_press_callback)
     {
-      // call the callback
+      long_press_callback();
+    }
+    else if (duration > BUTTON_DEBOUNCE)
+    {
       callback();
     }
     // start listening for the button to be pressed again

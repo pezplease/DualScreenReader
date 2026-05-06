@@ -11,8 +11,10 @@ SingleButtonControls::SingleButtonControls(gpio_num_t gpio, ActionCallback_t on_
 {
   gpio_install_isr_service(0);
   // The button fires SELECT
-  m_button = new GPIOButton(gpio, 0 /* active low */, [this]()
-                            { this->m_on_action(UIAction::SELECT); });
+  m_button = new GPIOButton(
+      gpio, 0 /* active low */,
+      [this]() { this->m_on_action(UIAction::SELECT); },
+      [this]() { this->m_on_action(UIAction::BACK); });
 }
 
 bool SingleButtonControls::did_wake_from_deep_sleep()
@@ -28,8 +30,9 @@ bool SingleButtonControls::did_wake_from_deep_sleep()
 
 UIAction SingleButtonControls::get_deep_sleep_action()
 {
-  // Only one button — always treat wake-up as SELECT
-  return UIAction::SELECT;
+  // Wake-up should restore the current page, not advance it.
+  // The user can press again to turn the page.
+  return UIAction::NONE;
 }
 
 void SingleButtonControls::setup_deep_sleep()

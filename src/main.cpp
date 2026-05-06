@@ -22,7 +22,8 @@ typedef enum
 {
   SELECTING_EPUB,
   SELECTING_TABLE_CONTENTS,
-  READING_EPUB
+  READING_EPUB,
+  READER_MENU
 } UIState;
 
 // State preserved across deep sleep in RTC memory
@@ -34,8 +35,81 @@ static EpubList *epub_list = nullptr;
 static EpubReader *reader = nullptr;
 static EpubToc *contents = nullptr;
 
+#define PROGRESS_FILE "/fs/progress.dat"
+
+static void save_progress()
+{
+  const EpubListItem &item = epub_list_state.epub_list[epub_list_state.selected_item];
+  FILE *f = fopen(PROGRESS_FILE, "w");
+  if (!f) return;
+  fprintf(f, "%s\n%u\n%u\n", item.path, (unsigned)item.current_section, (unsigned)item.current_page);
+  fclose(f);
+}
+
+// Returns true and populates epub_list_state slot 0 if a progress file is found.
+static bool load_progress()
+{
+  FILE *f = fopen(PROGRESS_FILE, "r");
+  if (!f) return false;
+  char path[MAX_PATH_SIZE];
+  unsigned section = 0, page = 0;
+  bool ok = fscanf(f, "%255[^\n]\n%u\n%u\n", path, &section, &page) == 3;
+  fclose(f);
+  if (!ok || path[0] == '\0') return false;
+  epub_list_state.selected_item = 0;
+  epub_list_state.num_epubs = 0;
+  epub_list_state.is_loaded = false;
+  strncpy(epub_list_state.epub_list[0].path, path, MAX_PATH_SIZE - 1);
+  epub_list_state.epub_list[0].path[MAX_PATH_SIZE - 1] = '\0';
+  epub_list_state.epub_list[0].current_section = (uint16_t)section;
+  epub_list_state.epub_list[0].current_page = (uint16_t)page;
+  return true;
+}
+
 void handleEpubList(Renderer *renderer, UIAction action, bool needs_redraw);
 void handleEpubTableContents(Renderer *renderer, UIAction action, bool needs_redraw);
+
+// ---------------------------------------------------------------------------
+// In-reader popup menu
+// ---------------------------------------------------------------------------
+static const char *READER_MENU_ITEMS[] = {
+  "Continue Reading",
+  "Table Of Contents",
+  "Back To Library",
+};
+static const int READER_MENU_COUNT = 3;
+static int reader_menu_selected = 0;
+
+static void draw_reader_menu(Renderer *renderer)
+{
+  int pw    = renderer->get_page_width();
+  int ph    = renderer->get_page_height();
+  int lh    = renderer->get_line_height();
+  int ipad  = 18;                          // vertical padding inside each row
+  int item_h = lh + ipad * 2;
+  int box_w  = pw * 2 / 3;
+  int box_h  = READER_MENU_COUNT * item_h + 24;
+  int box_x  = (pw - box_w) / 2;
+  int box_y  = (ph - box_h) / 2;
+
+  // White background then 3-pixel border
+  renderer->fill_rect(box_x, box_y, box_w, box_h, 255);
+  for (int b = 0; b < 3; b++)
+    renderer->draw_rect(box_x + b, box_y + b, box_w - 2 * b, box_h - 2 * b, 0);
+
+  for (int i = 0; i < READER_MENU_COUNT; i++)
+  {
+    int iy = box_y + 12 + i * item_h;
+    // Selection highlight — 2-pixel inset border
+    if (i == reader_menu_selected)
+    {
+      for (int b = 0; b < 2; b++)
+        renderer->draw_rect(box_x + 6 + b, iy + b, box_w - 12 - 2 * b, item_h - 2 * b, 0);
+    }
+    renderer->draw_text(box_x + 20, iy + ipad, READER_MENU_ITEMS[i],
+                        i == reader_menu_selected /* bold when selected */);
+  }
+}
 
 void handleEpub(Renderer *renderer, UIAction action)
 {
@@ -53,7 +127,15 @@ void handleEpub(Renderer *renderer, UIAction action)
     reader->next();
     break;
   case SELECT:
+    // Open the in-reader popup menu
+    ui_state = READER_MENU;
+    reader_menu_selected = 0;
+    reader->render();
+    draw_reader_menu(renderer);
+    return;
+  case BACK:
     ui_state = SELECTING_EPUB;
+    remove(PROGRESS_FILE);
     renderer->clear_screen();
     delete reader;
     reader = nullptr;
@@ -67,6 +149,58 @@ void handleEpub(Renderer *renderer, UIAction action)
     break;
   }
   reader->render();
+}
+
+void handleReaderMenu(Renderer *renderer, UIAction action)
+{
+  switch (action)
+  {
+  case UP:
+    reader_menu_selected = (reader_menu_selected - 1 + READER_MENU_COUNT) % READER_MENU_COUNT;
+    break;
+  case DOWN:
+    reader_menu_selected = (reader_menu_selected + 1) % READER_MENU_COUNT;
+    break;
+  case BACK:
+    // Dismiss the menu and resume reading
+    ui_state = READING_EPUB;
+    reader->render();
+    return;
+  case SELECT:
+    switch (reader_menu_selected)
+    {
+    case 0: // Continue Reading
+      ui_state = READING_EPUB;
+      reader->render();
+      return;
+    case 1: // Table Of Contents
+      ui_state = SELECTING_TABLE_CONTENTS;
+      contents = new EpubToc(epub_list_state.epub_list[epub_list_state.selected_item],
+                             epub_index_state, renderer);
+      contents->load();
+      contents->set_needs_redraw();
+      handleEpubTableContents(renderer, NONE, true);
+      return;
+    case 2: // Back To Library
+      ui_state = SELECTING_EPUB;
+      remove(PROGRESS_FILE);
+      renderer->clear_screen();
+      delete reader;
+      reader = nullptr;
+      reader_menu_selected = 0;
+      if (!epub_list)
+        epub_list = new EpubList(renderer, epub_list_state);
+      handleEpubList(renderer, NONE, true);
+      return;
+    }
+    return;
+  default:
+    break;
+  }
+  // Redraw page + popup after a selection change
+  renderer->clear_screen();
+  reader->render();
+  draw_reader_menu(renderer);
 }
 
 void handleEpubTableContents(Renderer *renderer, UIAction action, bool needs_redraw)
@@ -86,13 +220,47 @@ void handleEpubTableContents(Renderer *renderer, UIAction action, bool needs_red
     contents->next();
     break;
   case SELECT:
+  {
+    int toc_action = contents->get_toc_action();
+    if (toc_action == -2)
+    {
+      // "Return To Library"
+      ui_state = SELECTING_EPUB;
+      delete contents;
+      contents = nullptr;
+      handleEpubList(renderer, NONE, true);
+      return;
+    }
+    if (toc_action == -1)
+    {
+      // "Resume Reading" — reuse existing reader if still loaded
+      ui_state = READING_EPUB;
+      if (!reader)
+      {
+        reader = new EpubReader(epub_list_state.epub_list[epub_list_state.selected_item], renderer);
+        reader->load();
+      }
+      delete contents;
+      contents = nullptr;
+      handleEpub(renderer, NONE);
+      return;
+    }
+    // Jump to selected chapter
     ui_state = READING_EPUB;
+    delete reader;
     reader = new EpubReader(epub_list_state.epub_list[epub_list_state.selected_item], renderer);
-    reader->set_state_section(contents->get_selected_toc());
+    reader->set_state_section((uint16_t)toc_action);
     reader->load();
     delete contents;
     contents = nullptr;
     handleEpub(renderer, NONE);
+    return;
+  }
+  case BACK:
+    ui_state = SELECTING_EPUB;
+    delete contents;
+    contents = nullptr;
+    handleEpubList(renderer, NONE, true);
     return;
   default:
     break;
@@ -142,6 +310,9 @@ void handleUserInteraction(Renderer *renderer, UIAction ui_action, bool needs_re
   {
   case READING_EPUB:
     handleEpub(renderer, ui_action);
+    break;
+  case READER_MENU:
+    handleReaderMenu(renderer, ui_action);
     break;
   case SELECTING_TABLE_CONTENTS:
     handleEpubTableContents(renderer, ui_action, needs_redraw);
@@ -206,12 +377,20 @@ void main_task(void *param)
   }
   else
   {
-    // First boot or reset — initialise ui_state (RTC_NOINIT may hold garbage)
-    if (ui_state != SELECTING_EPUB && ui_state != SELECTING_TABLE_CONTENTS && ui_state != READING_EPUB)
-    {
-      ui_state = SELECTING_EPUB;
-    }
     renderer->reset();
+    // On any cold-boot or crash, try to restore from the SD card progress file.
+    // If the file exists, jump straight back to the book at the saved position.
+    if (load_progress())
+    {
+      ui_state = READING_EPUB;
+    }
+    else
+    {
+      // READER_MENU mid-crash → drop back to reading, not stuck in popup
+      if (ui_state == READER_MENU) ui_state = READING_EPUB;
+      if (ui_state != SELECTING_EPUB && ui_state != SELECTING_TABLE_CONTENTS && ui_state != READING_EPUB)
+        ui_state = SELECTING_EPUB;
+    }
     handleUserInteraction(renderer, NONE, true);
   }
 
@@ -234,18 +413,22 @@ void main_task(void *param)
         last_user_interaction = esp_timer_get_time();
         touch_controls->renderPressedState(renderer, ui_action);
         handleUserInteraction(renderer, ui_action, false);
+        if (ui_state == READING_EPUB)
+        {
+          save_progress();
+        }
         touch_controls->render(renderer);
+        if (battery)
+        {
+          draw_battery_level(renderer, battery->get_voltage(), battery->get_percentage());
+        }
+        renderer->flush_display();
         // Drain any presses that accumulated during the slow render so they
         // don't cascade the UI state machine through multiple screens at once.
         UIAction stale;
         while (xQueueReceive(ui_queue, &stale, 0) == pdTRUE) {}
       }
     }
-    if (battery)
-    {
-      draw_battery_level(renderer, battery->get_voltage(), battery->get_percentage());
-    }
-    renderer->flush_display();
   }
 
   ESP_LOGI(TAG, "Saving state and entering deep sleep");

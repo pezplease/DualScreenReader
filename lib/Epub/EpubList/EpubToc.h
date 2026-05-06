@@ -41,5 +41,9 @@ public:
   void prev();
   void render();
   void set_needs_redraw() { m_needs_redraw = true; }
-  uint16_t get_selected_toc();
+
+  // Returns the spine index to jump to, or a negative sentinel:
+  //  -1 = resume reading at current position
+  //  -2 = return to library
+  int get_toc_action();
 };

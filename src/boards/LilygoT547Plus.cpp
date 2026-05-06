@@ -8,10 +8,17 @@
 #include <hourglass.h>
 #include <epd_driver.h>    // lilygo driver: epd_lily_init/poweron/poweroff
 #include <Renderer/LilygoT547Renderer.h>
-#include "controls/SingleButtonControls.h"
 
-// The T5-4.7-Plus (ESP32-S3) has a single button on GPIO 21 (active low)
-#define BUTTON_SELECT_GPIO GPIO_NUM_21
+#ifdef DUAL_BUTTON_MODE
+  #include "controls/DualButtonControls.h"
+  // GPIO 39 = forward (next/down), GPIO 10 = backward (prev/up, also sleep wake)
+  #define BUTTON_FWD_GPIO GPIO_NUM_39
+  #define BUTTON_BWD_GPIO GPIO_NUM_10
+#else
+  #include "controls/SingleButtonControls.h"
+  // The T5-4.7-Plus has a single button on GPIO 21 (active low)
+  #define BUTTON_SELECT_GPIO GPIO_NUM_21
+#endif
 
 void LilygoT547Plus::power_up()
 {
@@ -46,10 +53,13 @@ TouchControls *LilygoT547Plus::get_touch_controls(Renderer *renderer, xQueueHand
 
 ButtonControls *LilygoT547Plus::get_button_controls(xQueueHandle ui_queue)
 {
+#ifdef DUAL_BUTTON_MODE
+  return new DualButtonControls(
+      BUTTON_FWD_GPIO, BUTTON_BWD_GPIO,
+      [ui_queue](UIAction action) { xQueueSend(ui_queue, &action, 0); });
+#else
   return new SingleButtonControls(
       BUTTON_SELECT_GPIO,
-      [ui_queue](UIAction action)
-      {
-        xQueueSend(ui_queue, &action, 0);
-      });
+      [ui_queue](UIAction action) { xQueueSend(ui_queue, &action, 0); });
+#endif
 }

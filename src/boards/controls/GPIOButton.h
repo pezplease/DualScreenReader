@@ -5,6 +5,9 @@
 
 typedef std::function<void(void)> ButtonCallback_t;
 
+// Press duration >= LONG_PRESS_US triggers the long-press callback (if set).
+static constexpr int64_t LONG_PRESS_US = 1500000; // 1.5 seconds
+
 class GPIOButton
 {
 private:
@@ -17,9 +20,11 @@ private:
   bool button_pressed = false;
 
   ButtonCallback_t callback;
+  ButtonCallback_t long_press_callback;
 
   void handle_interrupt();
 
 public:
-  GPIOButton(gpio_num_t gpio_pin, int active_level, ButtonCallback_t callback);
+  GPIOButton(gpio_num_t gpio_pin, int active_level, ButtonCallback_t callback,
+             ButtonCallback_t long_press_callback = nullptr);
 };

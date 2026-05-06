@@ -4,24 +4,28 @@ static const char *TAG = "PUBINDEX";
 #define PADDING 14
 #define ITEMS_PER_PAGE 6
 
+// Two virtual entries prepended before the epub's own TOC items.
+static const char *VIRTUAL_ENTRIES[] = {
+  "Resume Reading",
+  "Return To Library",
+};
+static const int VIRTUAL_COUNT = 2;
+
+static int total_items(Epub *epub)
+{
+  return epub->get_toc_items_count() + VIRTUAL_COUNT;
+}
+
 void EpubToc::next()
 {
-  // must be loaded as we need the information from the epub
-  if (!epub)
-  {
-    load();
-  }
-  state.selected_item = (state.selected_item + 1) % epub->get_toc_items_count();
+  if (!epub) load();
+  state.selected_item = (state.selected_item + 1) % total_items(epub);
 }
 
 void EpubToc::prev()
 {
-  // must be loaded as we need the information from the epub
-  if (!epub)
-  {
-    load();
-  }
-  state.selected_item = (state.selected_item - 1 + epub->get_toc_items_count()) % epub->get_toc_items_count();
+  if (!epub) load();
+  state.selected_item = (state.selected_item - 1 + total_items(epub)) % total_items(epub);
 }
 
 bool EpubToc::load()
@@ -66,28 +70,28 @@ void EpubToc::render()
     // trigger a redraw of the items
     state.previous_rendered_page = -1;
   }
-  for (int i = start_index; i < start_index + ITEMS_PER_PAGE && i < epub->get_toc_items_count(); i++)
+  int n = total_items(epub);
+  for (int i = start_index; i < start_index + ITEMS_PER_PAGE && i < n; i++)
   {
     // do we need to draw a new page of items?
     if (current_page != state.previous_rendered_page)
     {
-      // format the text using a text block
+      const char *label = (i < VIRTUAL_COUNT)
+                              ? VIRTUAL_ENTRIES[i]
+                              : epub->get_toc_item(i - VIRTUAL_COUNT).title.c_str();
+
       TextBlock *title_block = new TextBlock(LEFT_ALIGN);
-      title_block->add_span(epub->get_toc_item(i).title.c_str(), false, false);
+      title_block->add_span(label, i < VIRTUAL_COUNT /* bold for virtual entries */, false);
       title_block->layout(renderer, epub, renderer->get_page_width());
-      // work out the height of the title
       int text_height = cell_height - PADDING;
       int title_height = title_block->line_breaks.size() * renderer->get_line_height();
-      // center the title in the cell
       int y_offset = title_height < text_height ? (text_height - title_height) / 2 : 0;
-      // draw each line of the index block making sure we don't run over the cell
       int height = 0;
-      for (int i = 0; i < title_block->line_breaks.size() && height < text_height; i++)
+      for (int li = 0; li < (int)title_block->line_breaks.size() && height < text_height; li++)
       {
-        title_block->render(renderer, i, 10, ypos + height + y_offset);
+        title_block->render(renderer, li, 10, ypos + height + y_offset);
         height += renderer->get_line_height();
       }
-      // clean up the temporary index block
       delete title_block;
     }
     // clear the selection box around the previous selected item
@@ -112,7 +116,9 @@ void EpubToc::render()
   state.previous_rendered_page = current_page;
 }
 
-uint16_t EpubToc::get_selected_toc()
+int EpubToc::get_toc_action()
 {
-  return epub->get_spine_index_for_toc_index(state.selected_item);
+  if (state.selected_item == 0) return -1; // Resume reading
+  if (state.selected_item == 1) return -2; // Return to library
+  return (int)epub->get_spine_index_for_toc_index(state.selected_item - VIRTUAL_COUNT);
 }

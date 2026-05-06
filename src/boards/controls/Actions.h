@@ -8,6 +8,7 @@ typedef enum
   UP,
   DOWN,
   SELECT,
+  BACK,
   LAST_INTERACTION
 } UIAction;
 

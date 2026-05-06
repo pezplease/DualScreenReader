@@ -22,6 +22,10 @@
 // target without calling epd_init().
 class LilygoT547Renderer : public EpdiyFrameBufferRenderer
 {
+private:
+  int m_flush_count = 0;
+  static constexpr int FULL_REFRESH_INTERVAL = 8;
+
 public:
   LilygoT547Renderer(
       const EpdFont *regular_font,
@@ -49,7 +53,16 @@ public:
   void flush_display() override
   {
     Rect_t area = epd_lily_full_screen();
-    epd_lily_clear_area(area);
+    if (++m_flush_count % FULL_REFRESH_INTERVAL == 0)
+    {
+      // GC16-equivalent: 4 black/white cycles — full ghost clear
+      epd_lily_clear_area_cycles(area, 4, 50);
+    }
+    else
+    {
+      // GL16-equivalent: 1 black/white cycle — lighter clear, less flashing
+      epd_lily_clear_area_cycles(area, 1, 50);
+    }
     epd_lily_draw_grayscale_image(area, m_frame_buffer);
     needs_gray_flush = false;
   }
@@ -66,6 +79,7 @@ public:
     // Hardware full-clear (flashes white), then blank the software buffer
     epd_lily_clear();
     memset(m_frame_buffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
+    m_flush_count = 0;
   }
 
   void clear_screen() override

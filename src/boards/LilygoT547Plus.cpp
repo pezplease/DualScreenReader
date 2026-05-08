@@ -11,13 +11,17 @@
 
 #ifdef DUAL_BUTTON_MODE
   #include "controls/DualButtonControls.h"
-  // GPIO 39 = forward (next/down), GPIO 10 = backward (prev/up, also sleep wake)
-  #define BUTTON_FWD_GPIO GPIO_NUM_39
-  #define BUTTON_BWD_GPIO GPIO_NUM_10
+  #ifndef BUTTON_FWD_GPIO
+    #define BUTTON_FWD_GPIO GPIO_NUM_45
+  #endif
+  #ifndef BUTTON_BWD_GPIO
+    #define BUTTON_BWD_GPIO GPIO_NUM_48
+  #endif
 #else
   #include "controls/SingleButtonControls.h"
-  // The T5-4.7-Plus has a single button on GPIO 21 (active low)
-  #define BUTTON_SELECT_GPIO GPIO_NUM_21
+  #ifndef BUTTON_SELECT_GPIO
+    #define BUTTON_SELECT_GPIO GPIO_NUM_21
+  #endif
 #endif
 
 void LilygoT547Plus::power_up()
